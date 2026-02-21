@@ -1,11 +1,10 @@
 import React from 'react';
 import { useStore } from '../../store/index.js';
 
-const panels = [
-    { id: 'explorer', icon: '📁', title: 'Explorer' },
-    { id: 'debate', icon: '⚔', title: 'Debate' },
-    { id: 'git', icon: '⎇', title: 'Git' },
-    { id: 'settings', icon: '⚙', title: 'Settings' },
+const NAV_ITEMS = [
+    { id: 'explorer', icon: '📁', label: 'Files' },
+    { id: 'debate', icon: '⚔', label: 'Debate' },
+    { id: 'git', icon: '⎇', label: 'Source' },
 ];
 
 export default function ActivityBar() {
@@ -13,16 +12,29 @@ export default function ActivityBar() {
 
     return (
         <div className="actbar">
-            {panels.map(p => (
+            <div className="ab-top">
+                {NAV_ITEMS.map(p => (
+                    <button
+                        key={p.id}
+                        className={`ab-btn ${activePanel === p.id ? 'ab-active' : ''}`}
+                        title={p.id === 'explorer' ? 'File Explorer' : p.id === 'debate' ? 'AI Debate Engine' : 'Source Control (Git)'}
+                        onClick={() => setActivePanel(activePanel === p.id ? null : p.id)}
+                    >
+                        <span className="ab-icon">{p.icon}</span>
+                        <span className="ab-label">{p.label}</span>
+                    </button>
+                ))}
+            </div>
+            <div className="ab-bottom">
                 <button
-                    key={p.id}
-                    className={`ab-btn ${activePanel === p.id ? 'ab-active' : ''}`}
-                    title={p.title}
-                    onClick={() => setActivePanel(activePanel === p.id && p.id !== 'settings' ? null : p.id)}
+                    className={`ab-btn ${activePanel === 'settings' ? 'ab-active' : ''}`}
+                    title="Settings — API keys & model config"
+                    onClick={() => setActivePanel(activePanel === 'settings' ? 'explorer' : 'settings')}
                 >
-                    {p.icon}
+                    <span className="ab-icon">⚙</span>
+                    <span className="ab-label">Settings</span>
                 </button>
-            ))}
+            </div>
         </div>
     );
 }

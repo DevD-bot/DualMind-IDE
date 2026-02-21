@@ -92,4 +92,23 @@ router.post('/mkdir', (req, res) => {
     }
 });
 
+// GET /api/files/pick-folder  — opens native Windows folder browser dialog
+router.get('/pick-folder', (req, res) => {
+    const { execSync } = require('child_process');
+    try {
+        const ps = [
+            'Add-Type -AssemblyName System.Windows.Forms;',
+            '$f = New-Object System.Windows.Forms.FolderBrowserDialog;',
+            '$f.Description = "Select workspace folder";',
+            '$f.ShowNewFolderButton = $true;',
+            'if ($f.ShowDialog() -eq "OK") { Write-Output $f.SelectedPath } else { Write-Output "" }'
+        ].join(' ');
+        const result = execSync(`powershell -Command "${ps}"`, { encoding: 'utf-8', timeout: 60000 }).trim();
+        if (result) res.json({ path: result });
+        else res.json({ path: null, cancelled: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 module.exports = router;
