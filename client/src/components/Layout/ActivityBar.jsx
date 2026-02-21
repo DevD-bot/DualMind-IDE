@@ -42,7 +42,7 @@ export default function ActivityBar() {
                     title="DevD — GitHub & Portfolio"
                     onClick={() => {
                         window.open('https://github.com/DevD-bot', '_blank');
-                        window.open('https://devd-bot.github.io/', '_blank');
+                        setTimeout(() => window.open('https://devd-bot.github.io/', '_blank'), 150);
                     }}
                 >
                     <span className="ab-icon">
