@@ -1991,3 +1991,171 @@ textarea {
   color: var(--accent);
   background: rgba(0, 122, 204, .1);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   HELP PANEL
+   ═══════════════════════════════════════════════════════════════ */
+.help-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  background: var(--bg2);
+  font-family: var(--sans);
+}
+
+/* scrollbar */
+.help-panel::-webkit-scrollbar {
+  width: 5px;
+}
+
+.help-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.help-panel::-webkit-scrollbar-thumb {
+  background: var(--bg4);
+  border-radius: 3px;
+}
+
+.hp-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--bg4);
+  flex-shrink: 0;
+}
+
+.hp-title {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--t2);
+  text-transform: uppercase;
+}
+
+.hp-sub {
+  display: block;
+  font-size: 11px;
+  color: var(--t2);
+  margin-top: 2px;
+}
+
+/* Hero banner */
+.hp-hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(0, 122, 204, .12), rgba(78, 201, 176, .08));
+  border-bottom: 1px solid var(--bg4);
+  flex-shrink: 0;
+}
+
+.hp-hero-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.hp-hero-text {
+  font-size: 12px;
+  color: var(--t1);
+  line-height: 1.6;
+}
+
+.hp-hero-text strong {
+  color: #4ec9b0;
+}
+
+/* Accordion cards */
+.hp-sections {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  gap: 4px;
+  flex: 1;
+}
+
+.hp-card {
+  border: 1px solid var(--bg4);
+  border-left: 3px solid var(--hc, var(--accent));
+  border-radius: 5px;
+  background: var(--bg3);
+  cursor: pointer;
+  transition: background .12s;
+  overflow: hidden;
+}
+
+.hp-card:hover {
+  background: var(--bg4);
+}
+
+.hp-card-open {
+  background: rgba(255, 255, 255, .04);
+}
+
+.hp-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+}
+
+.hp-card-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+.hp-card-title {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t1);
+}
+
+.hp-card-chevron {
+  font-size: 11px;
+  color: var(--t3);
+  flex-shrink: 0;
+}
+
+.hp-card-body {
+  font-size: 12px;
+  color: var(--t2);
+  line-height: 1.65;
+  padding: 0 12px 12px 38px;
+  border-top: 1px solid var(--bg4);
+  padding-top: 8px;
+}
+
+/* Footer */
+.hp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border-top: 1px solid var(--bg4);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.hp-link {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color .1s;
+}
+
+.hp-link:hover {
+  color: var(--accent-h);
+}
+
+.hp-dot {
+  color: var(--t3);
+}
+
+.hp-version {
+  color: var(--t3);
+  font-family: var(--mono);
+}
