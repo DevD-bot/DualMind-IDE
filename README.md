@@ -207,5 +207,5 @@ Business Source License 1.1 (BUSL-1.1) — see [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-  <strong>Built with ⚔ by AI agents who wouldn't stop arguing</strong>
+  <strong>Built with by DevD for the Dev's for better solution.</strong>
 </div>

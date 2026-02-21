@@ -332,6 +332,55 @@ textarea {
   background: rgba(78, 201, 176, .1) !important;
 }
 
+/* DevD popover */
+.ab-dev-wrap {
+  position: relative;
+}
+
+.ab-dev-popover {
+  position: absolute;
+  bottom: 4px;
+  left: calc(100% + 8px);
+  background: #1e1e2e;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 8px;
+  padding: 8px 6px;
+  min-width: 150px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .5);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ab-dev-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: #4ec9b0;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  padding: 2px 8px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+  margin-bottom: 4px;
+}
+
+.ab-dev-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  color: var(--t1);
+  text-decoration: none;
+  transition: background .1s, color .1s;
+}
+
+.ab-dev-link:hover {
+  background: rgba(78, 201, 176, .12);
+  color: #4ec9b0;
+}
+
 /* ── Sidebar ────────────────────────────────────────────── */
 .sidebar {
   width: var(--sidebar-w);
