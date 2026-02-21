@@ -320,6 +320,18 @@ textarea {
   background: rgba(255, 255, 255, .05);
 }
 
+.ab-dev-btn {
+  color: #4ec9b0 !important;
+  margin-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+  padding-top: 10px !important;
+}
+
+.ab-dev-btn:hover {
+  color: #7ce8d3 !important;
+  background: rgba(78, 201, 176, .1) !important;
+}
+
 /* ── Sidebar ────────────────────────────────────────────── */
 .sidebar {
   width: var(--sidebar-w);
