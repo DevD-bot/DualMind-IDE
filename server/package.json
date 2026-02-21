@@ -1,0 +1,19 @@
+{
+    "name": "dualmind-server",
+    "version": "1.0.0",
+    "main": "src/index.js",
+    "scripts": {
+        "dev": "nodemon src/index.js",
+        "start": "node src/index.js"
+    },
+    "dependencies": {
+        "chokidar": "^3.5.3",
+        "cors": "^2.8.5",
+        "dualmind-ide": "file:..",
+        "express": "^4.18.2",
+        "socket.io": "^4.7.2"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.2"
+    }
+}
