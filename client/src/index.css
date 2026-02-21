@@ -2024,6 +2024,27 @@ textarea {
   flex-shrink: 0;
 }
 
+.hp-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hp-close {
+  font-size: 14px;
+  color: var(--t3);
+  padding: 2px 5px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color .1s, background .1s;
+  flex-shrink: 0;
+}
+
+.hp-close:hover {
+  color: var(--t1);
+  background: rgba(255, 255, 255, .08);
+}
+
 .hp-title {
   display: block;
   font-size: 10px;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useStore } from '../../store/index.js';
 
 const SECTIONS = [
     {
@@ -77,11 +78,15 @@ const SECTIONS = [
 
 export default function HelpPanel() {
     const [active, setActive] = useState(null);
+    const setActivePanel = useStore(s => s.setActivePanel);
 
     return (
         <div className="help-panel">
             <div className="hp-header">
-                <span className="hp-title">HELP & DOCUMENTATION</span>
+                <div className="hp-header-top">
+                    <span className="hp-title">HELP &amp; DOCUMENTATION</span>
+                    <button className="hp-close" title="Close" onClick={() => setActivePanel('debate')}>✕</button>
+                </div>
                 <span className="hp-sub">DualMind IDE — AI-Powered Code Editor</span>
             </div>
 
