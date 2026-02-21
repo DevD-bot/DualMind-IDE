@@ -100,6 +100,15 @@ export default function MenuBar() {
                 { label: '🗑 Clear Terminal', action: () => useStore.getState().clearTerminal() },
             ]
         },
+        {
+            label: 'Help', items: [
+                { label: '📖 Documentation', action: () => useStore.getState().setActivePanel('help') },
+                { label: '⚔ About DualMind IDE', action: () => useStore.getState().setActivePanel('help') },
+                '---',
+                { label: '🐙 GitHub', action: () => window.open('https://github.com/DevD-bot', '_blank') },
+                { label: '🌐 Portfolio', action: () => window.open('https://devd-bot.github.io/', '_blank') },
+            ]
+        },
     ];
 
     return (

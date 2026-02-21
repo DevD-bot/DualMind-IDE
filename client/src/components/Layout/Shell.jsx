@@ -9,6 +9,7 @@ import StatusBar from './StatusBar.jsx';
 import SettingsPanel from '../Settings/SettingsPanel.jsx';
 import DebatePanel from '../Debate/DebatePanel.jsx';
 import GitPanel from '../Git/GitPanel.jsx';
+import HelpPanel from '../Help/HelpPanel.jsx';
 import WorkspacePrompt from '../WorkspacePrompt.jsx';
 
 export default function Shell() {
@@ -18,10 +19,11 @@ export default function Shell() {
 
     if (!workspaceRoot) return <WorkspacePrompt />;
 
-    // Right panel content (debate / git / settings)
+    // Right panel content (debate / git / settings / help)
     const rightPanel = () => {
         if (activePanel === 'settings') return <SettingsPanel />;
         if (activePanel === 'git') return <GitPanel />;
+        if (activePanel === 'help') return <HelpPanel />;
         return <DebatePanel />;   // debate is default right panel
     };
 
