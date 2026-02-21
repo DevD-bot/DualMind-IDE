@@ -31,10 +31,11 @@
   --mono: 'JetBrains Mono', 'Fira Code', monospace;
   --sans: 'Inter', system-ui, sans-serif;
   --radius: 4px;
-  --titlebar-h: 38px;
+  --menubar-h: 30px;
   --statusbar-h: 22px;
-  --actbar-w: 64px;
-  --sidebar-w: 280px;
+  --actbar-w: 48px;
+  --left-panel-w: 240px;
+  --right-panel-w: 340px;
 }
 
 html,
@@ -97,46 +98,123 @@ textarea {
   overflow: hidden;
 }
 
-/* ── Titlebar ───────────────────────────────────────────── */
-.titlebar {
-  height: var(--titlebar-h);
+/* ── Left panel (file explorer, always visible) ─────────── */
+.left-panel {
+  width: var(--left-panel-w);
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid #111;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Right panel (debate / git / settings) ──────────────── */
+.right-panel {
+  width: var(--right-panel-w);
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-left: 1px solid #111;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── MenuBar (VSCode-style) ─────────────────────────────── */
+.menubar {
+  height: var(--menubar-h);
   background: var(--bg5);
   border-bottom: 1px solid #111;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 14px;
+  gap: 0;
+  padding: 0 8px;
   flex-shrink: 0;
   user-select: none;
+  z-index: 200;
 }
 
-.tb-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.mb-logo {
+  font-size: 15px;
+  margin-right: 4px;
 }
 
-.tb-logo {
-  font-size: 16px;
-}
-
-.tb-name {
+.mb-appname {
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12px;
+  color: var(--t1);
+  margin-right: 12px;
+  white-space: nowrap;
+}
+
+.mb-menu {
+  position: relative;
+}
+
+.mb-trigger {
+  font-size: 12px;
+  color: var(--t2);
+  padding: 4px 8px;
+  border-radius: var(--radius);
+  transition: background .12s, color .12s;
+  white-space: nowrap;
+}
+
+.mb-trigger:hover,
+.mb-trigger.mb-open {
+  background: var(--bg3);
   color: var(--t1);
 }
 
-.tb-sep {
-  color: var(--t3);
+.mb-dropdown {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  background: var(--bg3);
+  border: 1px solid var(--bg4);
+  border-radius: var(--radius);
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+  z-index: 999;
+  padding: 4px 0;
 }
 
-.tb-workspace {
-  color: var(--t2);
+.mb-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 5px 14px;
   font-size: 12px;
-  font-family: var(--mono);
+  color: var(--t1);
+  text-align: left;
+  gap: 20px;
+  transition: background .1s;
 }
 
-.tb-status-pill {
+.mb-item:hover:not(:disabled) {
+  background: var(--accent);
+}
+
+.mb-item:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+.mb-item-shortcut {
+  color: var(--t2);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.mb-sep {
+  height: 1px;
+  background: var(--bg4);
+  margin: 4px 0;
+}
+
+/* Debating status pill (now in menubar) */
+.mb-status-pill {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -146,9 +224,10 @@ textarea {
   padding: 2px 10px;
   border-radius: 20px;
   border: 1px solid rgba(220, 220, 170, .2);
+  margin-left: auto;
 }
 
-.tb-pulse {
+.mb-pulse {
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -156,29 +235,27 @@ textarea {
   animation: pulse 1.2s ease-in-out infinite;
 }
 
+/* workspace name on right of menubar */
+.mb-workspace {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--t2);
+  font-family: var(--mono);
+  padding-right: 6px;
+}
+
 @keyframes pulse {
 
   0%,
   100% {
     opacity: 1;
-    transform: scale(1)
+    transform: scale(1);
   }
 
   50% {
     opacity: .4;
-    transform: scale(.8)
+    transform: scale(.8);
   }
-}
-
-.tb-action-btn {
-  font-size: 16px;
-  padding: 4px;
-  border-radius: var(--radius);
-  transition: background .15s;
-}
-
-.tb-action-btn:hover {
-  background: var(--bg3);
 }
 
 /* ── Activity Bar ───────────────────────────────────────── */
@@ -206,7 +283,7 @@ textarea {
 }
 
 .ab-btn {
-  width: 64px;
+  width: var(--actbar-w);
   padding: 8px 0;
   border-radius: 0;
   font-size: 0;

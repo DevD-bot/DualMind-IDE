@@ -75,7 +75,7 @@ export const useStore = create((set, get) => ({
     setGitStatus: ({ branch, files }) => set({ gitBranch: branch, gitFiles: files }),
 
     // ── UI Layout ──────────────────────────────────
-    activePanel: 'explorer',  // 'explorer' | 'debate' | 'git' | 'settings'
+    activePanel: 'debate',  // 'explorer' | 'debate' | 'git' | 'settings'
     setActivePanel: (p) => set({ activePanel: p }),
     bottomPanelOpen: true,
     toggleBottomPanel: () => set(s => ({ bottomPanelOpen: !s.bottomPanelOpen })),

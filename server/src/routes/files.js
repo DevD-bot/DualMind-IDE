@@ -94,17 +94,25 @@ router.post('/mkdir', (req, res) => {
 
 // GET /api/files/pick-folder  — opens native Windows folder browser dialog
 router.get('/pick-folder', (req, res) => {
-    const { execSync } = require('child_process');
+    const { spawnSync } = require('child_process');
+    const os = require('os');
+    const tmp = require('path').join(os.tmpdir(), '_dualmind_picker.ps1');
+    const script = [
+        'Add-Type -AssemblyName System.Windows.Forms',
+        '$dlg = New-Object System.Windows.Forms.FolderBrowserDialog',
+        '$dlg.Description = "Select workspace folder"',
+        '$dlg.ShowNewFolderButton = $true',
+        'if ($dlg.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {',
+        '    Write-Output $dlg.SelectedPath',
+        '}',
+    ].join('\n');
+    require('fs').writeFileSync(tmp, script, 'utf-8');
     try {
-        const ps = [
-            'Add-Type -AssemblyName System.Windows.Forms;',
-            '$f = New-Object System.Windows.Forms.FolderBrowserDialog;',
-            '$f.Description = "Select workspace folder";',
-            '$f.ShowNewFolderButton = $true;',
-            'if ($f.ShowDialog() -eq "OK") { Write-Output $f.SelectedPath } else { Write-Output "" }'
-        ].join(' ');
-        const result = execSync(`powershell -Command "${ps}"`, { encoding: 'utf-8', timeout: 60000 }).trim();
-        if (result) res.json({ path: result });
+        const result = spawnSync('powershell', [
+            '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', tmp
+        ], { encoding: 'utf-8', timeout: 60000 });
+        const picked = (result.stdout || '').trim();
+        if (picked) res.json({ path: picked });
         else res.json({ path: null, cancelled: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
