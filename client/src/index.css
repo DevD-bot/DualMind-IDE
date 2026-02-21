@@ -656,35 +656,13 @@ textarea {
   outline: none;
 }
 
+/* ft-row base — overridden by second block below for layout */
 .ft-row {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 8px;
-  border-radius: 0;
-  cursor: pointer;
   color: var(--t1);
   font-size: 13px;
   transition: background .1s;
-}
-
-.ft-row:hover {
-  background: rgba(255, 255, 255, .07);
-}
-
-.ft-row:hover .ft-del {
-  opacity: 1;
-}
-
-.ft-chevron {
-  font-size: 10px;
-  color: var(--t3);
-  width: 12px;
-}
-
-.ft-file-icon {
-  font-size: 13px;
-  width: 16px;
 }
 
 .ft-name {
@@ -692,6 +670,7 @@ textarea {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
 }
 
 .ft-del {
@@ -701,6 +680,7 @@ textarea {
   padding: 2px 4px;
   transition: opacity .1s;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 .ft-del:hover {
@@ -1776,14 +1756,12 @@ textarea {
 .ft-row {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   padding: 2px 6px 2px 0;
   cursor: pointer;
   border-radius: 0;
   min-height: 22px;
   position: relative;
-  white-space: nowrap;
-  overflow: hidden;
 }
 
 .ft-row:hover {
@@ -1843,10 +1821,12 @@ textarea {
 /* ── File name ────────────────────────────────────────────────── */
 .ft-name {
   flex: 1;
+  min-width: 0;
   font-size: 13px;
   color: var(--t1);
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
   line-height: 1;
 }
 
