@@ -22,6 +22,14 @@ app.use('/api/files', filesRouter);
 app.use('/api/execute', executeRouter);
 app.use('/api/git', gitRouter);
 
+app.get('/', (_, res) => res.json({
+    name: 'DualMind IDE — Backend API',
+    status: '✅ Running',
+    version: '2.0.0',
+    endpoints: ['/api/files', '/api/execute', '/api/git', '/health'],
+    time: new Date().toISOString()
+}));
+
 app.get('/health', (_, res) => res.json({ ok: true, time: new Date().toISOString() }));
 
 io.on('connection', socket => {
