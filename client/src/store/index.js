@@ -83,12 +83,22 @@ export const useStore = create((set, get) => ({
     setSidebarWidth: (w) => set({ sidebarWidth: w }),
 
     // ── Agent Config ───────────────────────────────
-    agentConfig: {
-        archie: saved.archie || { ...DEFAULT_AGENT },
-        optix: saved.optix || { ...DEFAULT_AGENT },
-        judge: saved.judge || { ...DEFAULT_AGENT },
-        rounds: saved.rounds || 'auto',
-    },
+    agentConfig: (() => {
+        const DEF = { provider: 'gemini', apiKey: '', model: 'gemini-2.0-flash' };
+        const defaultAgents = [
+            { name: 'Archie', color: '#4ec9b0', role: 'Architect', ...(saved.archie || DEF) },
+            { name: 'Optix', color: '#f44747', role: 'Optimizer', ...(saved.optix || DEF) },
+            { name: 'Judge', color: '#dcdcaa', role: 'Synthesizer', ...(saved.judge || DEF) },
+        ];
+        return {
+            agents: saved.agents || defaultAgents,
+            // legacy keys kept for backwards compat
+            archie: saved.archie || { ...DEF },
+            optix: saved.optix || { ...DEF },
+            judge: saved.judge || { ...DEF },
+            rounds: saved.rounds || 'auto',
+        };
+    })(),
     setAgentConfig: (cfg) => {
         set({ agentConfig: cfg });
         const { workspaceRoot } = get();

@@ -1,66 +1,42 @@
 import { callModel, extractCode, extractJSON } from './ai.js';
 
-// ── System prompts ─────────────────────────────────────────────
+// ── Prompt builders ────────────────────────────────────────────
 
-const ARCHIE_QUICK = `You are Archie, an opinionated software architect AI in a live coding debate.
-Philosophy: Clean architecture, SOLID principles, readability, scalability.
-- Present your solution OR critique Optix with specific technical reasoning
-- Always include a code snippet in a markdown fenced block
-- Under 180 words. Label: **ARCHIE:** at start`;
+function debaterPrompt(agent, role) {
+    return `You are ${agent.name}, an AI in a live coding debate. Your role: ${role || agent.role || 'Debater'}.
+Present or defend your solution OR critique the previous response with specific technical reasoning.
+Always include a code snippet in a fenced markdown code block.
+Under 180 words. Start your reply with **${agent.name.toUpperCase()}:**`;
+}
 
-const OPTIX_QUICK = `You are Optix, a ruthless performance optimizer AI in a live coding debate.
-Philosophy: Efficiency, minimal code, edge-case handling, Big-O optimization.
-- Present your solution OR counter Archie's verbose approach
-- Always include a leaner code snippet in a markdown fenced block
-- Under 180 words. Label: **OPTIX:** at start`;
-
-const JUDGE_QUICK = `You are the Judge — synthesize Archie and Optix's debate into ONE optimal solution.
+function judgePrompt(agent) {
+    return `You are ${agent.name} — the final synthesizer. Review all debate responses and output ONE optimal solution.
 Output ONLY the final code in ONE fenced markdown code block with language specifier.
 No explanation or text outside the code block.`;
+}
 
 const PLANNER = `You are a senior software architect. Given an app description and tech stack, output ONLY a valid JSON array of files.
 Each object: {"filename":"name.ext","role":"one-line description"}.
 3–6 files max. Start with [ and end with ]. No other text.`;
 
-const ARCHIE_BUILD = `You are Archie, debating implementation of ONE SPECIFIC FILE in a multi-file app.
-Focus: Clean structure, correctness, maintainability. Provide the COMPLETE file implementation in a fenced code block.
-Under 220 words. Label: **ARCHIE:** at start`;
-
-const OPTIX_BUILD = `You are Optix, critiquing ONE SPECIFIC FILE in a multi-file app.
-Focus: Minimal code, efficiency, edge-cases. Provide your own COMPLETE implementation in a fenced code block.
-Under 220 words. Label: **OPTIX:** at start`;
-
-const JUDGE_BUILD = `You are the Judge synthesizing the final version of ONE SPECIFIC FILE.
-Output ONLY the final complete file content in ONE fenced markdown code block. Complete and production-ready. No text outside the block.`;
-
-const ARCHIE_EXPLAIN = `You are Archie. Explain the provided code from an architectural perspective.
-What patterns are used? What's well-designed? What would you improve? Under 200 words. Label: **ARCHIE:** at start`;
-
-const OPTIX_EXPLAIN = `You are Optix. Explain the provided code from a performance perspective.
-What's efficient? What's slow? Where are the bottlenecks and edge cases? Under 200 words. Label: **OPTIX:** at start`;
-
-const JUDGE_EXPLAIN = `You are the Judge. Synthesize Archie and Optix's explanations into a clear, comprehensive explanation of the code.
-Cover both architectural quality and performance aspects. Be concise.`;
-
-const ARCHIE_REFACTOR = `You are Archie. Refactor the provided code applying clean architecture principles.
-Provide the FULLY REFACTORED code in a fenced markdown code block. Label: **ARCHIE:** at start. Under 220 words.`;
-
-const OPTIX_REFACTOR = `You are Optix. Refactor the provided code for maximum efficiency and minimal footprint.
-Provide your own COMPLETE refactored version in a fenced code block. Label: **OPTIX:** at start. Under 220 words.`;
-
-const JUDGE_REFACTOR = `You are the Judge. Synthesize the best refactoring from Archie and Optix into ONE final version.
-Output ONLY the final refactored code in ONE fenced markdown code block. Complete and ready to use.`;
-
-const ARCHIE_FIX = `You are Archie. Debug this code and fix the bug using clean, structured code patterns.
-Show the fixed code in a fenced markdown code block. Explain the root cause briefly. Label: **ARCHIE:** at start`;
-
-const OPTIX_FIX = `You are Optix. Find the most efficient fix for this bug. Your fix should be minimal and precise.
-Show the fixed code in a fenced markdown code block. Label: **OPTIX:** at start`;
-
-const JUDGE_FIX = `You are the Judge. Synthesize the best bug fix from Archie and Optix.
-Output ONLY the final fixed, complete code in ONE fenced markdown code block.`;
-
 // ── Helpers ────────────────────────────────────────────────────
+
+function getDebaters(agentConfig) {
+    // Support both new {agents:[]} and legacy {archie,optix,judge} shapes
+    if (agentConfig.agents && agentConfig.agents.length >= 2) {
+        const agents = agentConfig.agents;
+        const debaters = agents.slice(0, -1);   // all except last
+        const judge = agents[agents.length - 1]; // last = judge
+        return { debaters, judge };
+    }
+    // Legacy fallback
+    const debaters = [
+        { ...agentConfig.archie, name: 'Archie', role: 'Architect' },
+        { ...agentConfig.optix, name: 'Optix', role: 'Optimizer' },
+    ];
+    const judge = { ...agentConfig.judge, name: 'Judge', role: 'Synthesizer' };
+    return { debaters, judge };
+}
 
 function determineRounds(prompt, setting) {
     if (setting === '2') return 2;
@@ -77,41 +53,52 @@ function determineRounds(prompt, setting) {
 // ── Quick Code Duel ────────────────────────────────────────────
 
 export async function quickCodeDuel({ prompt, language, agentConfig, onMessage, onStatus }) {
-    const { archie, optix, judge, rounds: roundsSetting } = agentConfig;
-    const totalRounds = determineRounds(prompt, roundsSetting);
-    const archieHist = [], optixHist = [];
+    const { debaters, judge } = getDebaters(agentConfig);
+    const totalRounds = determineRounds(prompt, agentConfig.rounds);
+
+    // Per-agent history
+    const history = debaters.map(() => []);
 
     for (let r = 1; r <= totalRounds; r++) {
-        onStatus(`Round ${r}/${totalRounds} — Archie arguing…`);
-        const archiePrompt = r === 1
-            ? `Coding task: "${prompt}"\n\nRound 1 of ${totalRounds}. Present your best solution.`
-            : `Coding task: "${prompt}"\n\nRound ${r}. Optix said:\n${optixHist[optixHist.length - 1]}\n\nDefend/refine your approach.`;
-        const aMsg = await callModel(archie, ARCHIE_QUICK, archiePrompt, 600);
-        archieHist.push(aMsg);
-        onMessage({ type: 'archie', label: 'Archie', tag: `round ${r}`, text: aMsg });
+        for (let d = 0; d < debaters.length; d++) {
+            const agent = debaters[d];
+            onStatus(`Round ${r}/${totalRounds} — ${agent.name} arguing…`);
 
-        onStatus(`Round ${r}/${totalRounds} — Optix countering…`);
-        const optixPrompt = `Coding task: "${prompt}"\n\nRound ${r}. Archie said:\n${aMsg}\n\nCritique and present your leaner alternative.`;
-        const oMsg = await callModel(optix, OPTIX_QUICK, optixPrompt, 600);
-        optixHist.push(oMsg);
-        onMessage({ type: 'optix', label: 'Optix', tag: `round ${r}`, text: oMsg });
+            const prevMsgs = debaters
+                .filter((_, i) => i !== d)
+                .flatMap((a, i) => history[i].length >= r ? [`${a.name} said:\n${history[i][r - 1]}`] : [])
+                .join('\n\n');
+
+            const userMsg = r === 1 && d === 0
+                ? `Coding task: "${prompt}"\n\nRound 1 of ${totalRounds}. Present your best solution.`
+                : `Coding task: "${prompt}"\n\nRound ${r}${prevMsgs ? `. Context:\n${prevMsgs}` : ''}.\n\nPresent/refine your approach.`;
+
+            const msg = await callModel(agent, debaterPrompt(agent), userMsg, 600);
+            history[d].push(msg);
+            onMessage({ type: agent.name.toLowerCase(), label: agent.name, tag: `round ${r}`, text: msg, color: agent.color });
+        }
     }
 
-    onStatus('Judge synthesizing final code…');
-    const judgePrompt = `Coding task: "${prompt}"\nLanguage: ${language}\n\n${archieHist.map((a, i) => `[ARCHIE R${i + 1}]:\n${a}\n\n[OPTIX R${i + 1}]:\n${optixHist[i] || ''}`).join('\n\n')}\n\nSynthesize the optimal final code.`;
-    const judgeRaw = await callModel(judge, JUDGE_QUICK, judgePrompt, 1200);
+    // Judge synthesizes
+    onStatus(`${judge.name} synthesizing final code…`);
+    const transcript = debaters.map((a, i) =>
+        history[i].map((m, r) => `[${a.name} R${r + 1}]:\n${m}`).join('\n\n')
+    ).join('\n\n---\n\n');
+    const judgeRaw = await callModel(judge, judgePrompt(judge),
+        `Coding task: "${prompt}"\nLanguage: ${language}\n\n${transcript}\n\nSynthesize the optimal final code.`, 1200);
     const finalCode = extractCode(judgeRaw);
-    onMessage({ type: 'judge', label: 'Judge', tag: 'verdict', text: '⚖ Verdict reached. Final code ready in output →' });
+    onMessage({ type: judge.name.toLowerCase(), label: judge.name, tag: 'verdict', text: '⚖ Verdict reached. Final code ready in output →', color: judge.color });
     return { code: finalCode, language };
 }
 
 // ── Build App ─────────────────────────────────────────────────
 
 export async function buildApp({ description, stack, agentConfig, onMessage, onStatus, onFile }) {
-    const { archie, optix, judge } = agentConfig;
+    const { debaters, judge } = getDebaters(agentConfig);
+    const planner = debaters[0];
 
     onStatus('Planner generating file structure…');
-    const planRaw = await callModel(archie, PLANNER, `App: "${description}"\nStack: ${stack}\nList files as JSON.`, 400);
+    const planRaw = await callModel(planner, PLANNER, `App: "${description}"\nStack: ${stack}\nList files as JSON.`, 400);
     const filePlan = extractJSON(planRaw);
     const planMD = filePlan.map(f => `- \`${f.filename}\` — ${f.role}`).join('\n');
     onMessage({ type: 'plan', label: 'Planner', tag: 'file plan', text: `**App:** ${description}\n**Stack:** ${stack}\n\n${planMD}` });
@@ -125,16 +112,24 @@ export async function buildApp({ description, stack, agentConfig, onMessage, onS
         const otherFiles = filePlan.filter(f => f.filename !== filename).map(f => `${f.filename}: ${f.role}`).join('\n');
         const ctx = `App: "${description}" | Stack: ${stack}\nFile: ${filename} (${role})\nOther files:\n${otherFiles}`;
 
-        const aMsg = await callModel(archie, ARCHIE_BUILD, `${ctx}\n\nProvide your complete implementation of ${filename}.`, 900);
-        onMessage({ type: 'archie', label: 'Archie', tag: filename, text: aMsg });
+        let prevMsg = '';
+        const buildSys = (agent) =>
+            `You are ${agent.name}, debating implementation of ONE SPECIFIC FILE in a multi-file app. Role: ${agent.role || 'Architect'}.
+Focus: Correctness and quality. Provide the COMPLETE file implementation in a fenced code block.
+Under 220 words. Start with **${agent.name.toUpperCase()}:**`;
 
-        const oMsg = await callModel(optix, OPTIX_BUILD, `${ctx}\n\nArchie's impl:\n${aMsg}\n\nCritique and provide your better version.`, 900);
-        onMessage({ type: 'optix', label: 'Optix', tag: filename, text: oMsg });
+        for (const agent of debaters) {
+            const userMsg = `${ctx}\n\nProvide your complete implementation of ${filename}.${prevMsg ? `\n\nPrevious agent said:\n${prevMsg}` : ''}`;
+            const msg = await callModel(agent, buildSys(agent), userMsg, 900);
+            prevMsg = msg;
+            onMessage({ type: agent.name.toLowerCase(), label: agent.name, tag: filename, text: msg, color: agent.color });
+        }
 
-        const judgeRaw = await callModel(judge, JUDGE_BUILD, `App: "${description}" | Stack: ${stack}\nFile: ${filename}\n\nArchie:\n${aMsg}\n\nOptix:\n${oMsg}\n\nSynthesize final ${filename}.`, 1500);
+        const finalDebate = `App: "${description}" | Stack: ${stack}\nFile: ${filename}\n\nDebate:\n${prevMsg}\n\nSynthesize final ${filename}.`;
+        const judgeRaw = await callModel(judge, judgePrompt(judge), finalDebate, 1500);
         results[filename] = extractCode(judgeRaw);
         onFile(filename, results[filename]);
-        onMessage({ type: 'judge', label: 'Judge', tag: filename, text: `✓ \`${filename}\` synthesized` });
+        onMessage({ type: judge.name.toLowerCase(), label: judge.name, tag: filename, text: `✓ \`${filename}\` synthesized`, color: judge.color });
     }
     return results;
 }
@@ -142,60 +137,81 @@ export async function buildApp({ description, stack, agentConfig, onMessage, onS
 // ── Explain Code ──────────────────────────────────────────────
 
 export async function explainCode({ code, language, agentConfig, onMessage, onStatus }) {
-    const { archie, optix, judge } = agentConfig;
+    const { debaters, judge } = getDebaters(agentConfig);
     const ctx = `Language: ${language}\n\n\`\`\`${language}\n${code}\n\`\`\``;
 
-    onStatus('Archie analyzing architecture…');
-    const aMsg = await callModel(archie, ARCHIE_EXPLAIN, `Explain this code:\n${ctx}`, 600);
-    onMessage({ type: 'archie', label: 'Archie', tag: 'analysis', text: aMsg });
+    const explainSys = (agent) =>
+        `You are ${agent.name}. Explain the provided code from your unique perspective (role: ${agent.role || 'Analyst'}).
+What patterns are used? What's well/poorly designed? Under 200 words. Start with **${agent.name.toUpperCase()}:**`;
 
-    onStatus('Optix analyzing performance…');
-    const oMsg = await callModel(optix, OPTIX_EXPLAIN, `Analyze this code's performance:\n${ctx}\n\nArchie says:\n${aMsg}`, 600);
-    onMessage({ type: 'optix', label: 'Optix', tag: 'analysis', text: oMsg });
+    let latestMsg = '';
+    for (const agent of debaters) {
+        onStatus(`${agent.name} analyzing…`);
+        const msg = await callModel(agent, explainSys(agent),
+            `Explain this code:\n${ctx}${latestMsg ? `\n\nPrevious analysis:\n${latestMsg}` : ''}`, 600);
+        latestMsg = msg;
+        onMessage({ type: agent.name.toLowerCase(), label: agent.name, tag: 'analysis', text: msg, color: agent.color });
+    }
 
-    onStatus('Judge synthesizing explanation…');
-    const judgeRaw = await callModel(judge, JUDGE_EXPLAIN, `Code:\n${ctx}\n\nArchie:\n${aMsg}\n\nOptix:\n${oMsg}\n\nSynthesize a clear explanation.`, 800);
-    onMessage({ type: 'judge', label: 'Judge', tag: 'explanation', text: judgeRaw });
+    onStatus(`${judge.name} synthesizing explanation…`);
+    const judgeRaw = await callModel(judge,
+        `You are ${judge.name}. Synthesize all agents' explanations into one clear, comprehensive explanation.`,
+        `Code:\n${ctx}\n\nAgent analyses:\n${latestMsg}\n\nSynthesize a clear explanation.`, 800);
+    onMessage({ type: judge.name.toLowerCase(), label: judge.name, tag: 'explanation', text: judgeRaw, color: judge.color });
 }
 
 // ── Refactor Code ─────────────────────────────────────────────
 
 export async function refactorCode({ code, language, agentConfig, onMessage, onStatus }) {
-    const { archie, optix, judge } = agentConfig;
+    const { debaters, judge } = getDebaters(agentConfig);
     const ctx = `Language: ${language}\n\n\`\`\`${language}\n${code}\n\`\`\``;
 
-    onStatus('Archie refactoring…');
-    const aMsg = await callModel(archie, ARCHIE_REFACTOR, `Refactor:\n${ctx}`, 900);
-    onMessage({ type: 'archie', label: 'Archie', tag: 'refactor', text: aMsg });
+    const refactorSys = (agent) =>
+        `You are ${agent.name}. Refactor the provided code applying your philosophy (role: ${agent.role || 'Refactorer'}).
+Provide the FULLY REFACTORED code in a fenced markdown code block. Under 220 words. Start with **${agent.name.toUpperCase()}:**`;
 
-    onStatus('Optix refactoring…');
-    const oMsg = await callModel(optix, OPTIX_REFACTOR, `Refactor (counter Archie):\n${ctx}\n\nArchie's version:\n${aMsg}`, 900);
-    onMessage({ type: 'optix', label: 'Optix', tag: 'refactor', text: oMsg });
+    let latestMsg = '';
+    for (const agent of debaters) {
+        onStatus(`${agent.name} refactoring…`);
+        const msg = await callModel(agent, refactorSys(agent),
+            `Refactor:\n${ctx}${latestMsg ? `\n\nPrevious agent's version:\n${latestMsg}` : ''}`, 900);
+        latestMsg = msg;
+        onMessage({ type: agent.name.toLowerCase(), label: agent.name, tag: 'refactor', text: msg, color: agent.color });
+    }
 
-    onStatus('Judge synthesizing refactor…');
-    const judgeRaw = await callModel(judge, JUDGE_REFACTOR, `Original:\n${ctx}\n\nArchie:\n${aMsg}\n\nOptix:\n${oMsg}\n\nSynthesize the best refactoring.`, 1200);
+    onStatus(`${judge.name} synthesizing refactor…`);
+    const judgeRaw = await callModel(judge,
+        `You are ${judge.name}. Synthesize the best refactoring from all agents. Output ONLY the final code in a fenced code block.`,
+        `Original:\n${ctx}\n\nRefactoring debate:\n${latestMsg}\n\nSynthesize the best refactoring.`, 1200);
     const finalCode = extractCode(judgeRaw);
-    onMessage({ type: 'judge', label: 'Judge', tag: 'refactored', text: '⚖ Refactored code ready →' });
+    onMessage({ type: judge.name.toLowerCase(), label: judge.name, tag: 'refactored', text: '⚖ Refactored code ready →', color: judge.color });
     return finalCode;
 }
 
 // ── Fix Bug ───────────────────────────────────────────────────
 
 export async function fixBug({ code, error, language, agentConfig, onMessage, onStatus }) {
-    const { archie, optix, judge } = agentConfig;
+    const { debaters, judge } = getDebaters(agentConfig);
     const ctx = `Language: ${language}\n\nCode:\n\`\`\`${language}\n${code}\n\`\`\`\n\nError:\n\`\`\`\n${error}\n\`\`\``;
 
-    onStatus('Archie debugging…');
-    const aMsg = await callModel(archie, ARCHIE_FIX, `Fix this bug:\n${ctx}`, 900);
-    onMessage({ type: 'archie', label: 'Archie', tag: 'fix', text: aMsg });
+    const fixSys = (agent) =>
+        `You are ${agent.name}. Debug this code and propose your fix (role: ${agent.role || 'Debugger'}).
+Show the fixed code in a fenced markdown code block. Explain the root cause briefly. Under 220 words. Start with **${agent.name.toUpperCase()}:**`;
 
-    onStatus('Optix debugging…');
-    const oMsg = await callModel(optix, OPTIX_FIX, `Fix this bug (counter Archie):\n${ctx}\n\nArchie's fix:\n${aMsg}`, 900);
-    onMessage({ type: 'optix', label: 'Optix', tag: 'fix', text: oMsg });
+    let latestMsg = '';
+    for (const agent of debaters) {
+        onStatus(`${agent.name} debugging…`);
+        const msg = await callModel(agent, fixSys(agent),
+            `Fix this bug:\n${ctx}${latestMsg ? `\n\nPrevious agent's fix:\n${latestMsg}` : ''}`, 900);
+        latestMsg = msg;
+        onMessage({ type: agent.name.toLowerCase(), label: agent.name, tag: 'fix', text: msg, color: agent.color });
+    }
 
-    onStatus('Judge synthesizing fix…');
-    const judgeRaw = await callModel(judge, JUDGE_FIX, `Bug context:\n${ctx}\n\nArchie fix:\n${aMsg}\n\nOptix fix:\n${oMsg}\n\nSynthesize the best fix.`, 1200);
+    onStatus(`${judge.name} synthesizing fix…`);
+    const judgeRaw = await callModel(judge,
+        `You are ${judge.name}. Synthesize the best bug fix. Output ONLY the final fixed code in ONE fenced code block.`,
+        `Bug context:\n${ctx}\n\nFix debate:\n${latestMsg}\n\nSynthesize the best fix.`, 1200);
     const finalCode = extractCode(judgeRaw);
-    onMessage({ type: 'judge', label: 'Judge', tag: 'fixed', text: '⚖ Fixed code ready →' });
+    onMessage({ type: judge.name.toLowerCase(), label: judge.name, tag: 'fixed', text: '⚖ Fixed code ready →', color: judge.color });
     return finalCode;
 }

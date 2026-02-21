@@ -1651,3 +1651,302 @@ textarea {
   padding: 2px 6px;
   border-radius: 3px;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   FILE EXPLORER  (VSCode-style)
+   ═══════════════════════════════════════════════════════════════ */
+.file-explorer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  font-size: 13px;
+  background: var(--bg2);
+}
+
+/* ── Header bar ───────────────────────────────────────────────── */
+.fe-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px 4px;
+  flex-shrink: 0;
+}
+
+.fe-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: var(--t2);
+  text-transform: uppercase;
+}
+
+.fe-actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity .15s;
+}
+
+.fe-header:hover .fe-actions {
+  opacity: 1;
+}
+
+.fe-icon-btn {
+  color: var(--t2);
+  padding: 3px 4px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  transition: color .12s, background .12s;
+}
+
+.fe-icon-btn:hover {
+  color: var(--t1);
+  background: var(--bg4);
+}
+
+/* ── Root workspace label ─────────────────────────────────────── */
+.fe-root-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  cursor: default;
+  user-select: none;
+}
+
+.fe-root-chevron {
+  color: var(--t2);
+  font-size: 10px;
+}
+
+.fe-root-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--t1);
+}
+
+/* ── New file/folder input ────────────────────────────────────── */
+.fe-new-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--bg3);
+}
+
+.fe-new-icon {
+  font-size: 13px;
+}
+
+.fe-input {
+  flex: 1;
+  background: var(--bg5);
+  border: 1px solid var(--accent);
+  color: var(--t1);
+  padding: 3px 6px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  outline: none;
+}
+
+/* ── Scrollable tree ──────────────────────────────────────────── */
+.fe-tree {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 2px 0 8px;
+}
+
+.fe-empty {
+  color: var(--t3);
+  font-size: 12px;
+  padding: 16px 12px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ── Tree rows ────────────────────────────────────────────────── */
+.ft-node {
+  user-select: none;
+}
+
+.ft-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 6px 2px 0;
+  cursor: pointer;
+  border-radius: 0;
+  min-height: 22px;
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.ft-row:hover {
+  background: rgba(255, 255, 255, .06);
+}
+
+.ft-row:hover .ft-del {
+  opacity: 1;
+}
+
+.ft-row-active {
+  background: rgba(0, 122, 204, .25) !important;
+}
+
+.ft-row-active .ft-name {
+  color: #fff;
+}
+
+/* ── SVG file/folder icons (VSCode Material style) ─────────────── */
+.fi-svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: block;
+  overflow: visible;
+}
+
+.fi-folder {
+  width: 18px;
+  height: 18px;
+}
+
+/* icon wrapper — aligns icon + chevron in a row */
+.ft-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-right: 5px;
+  margin-left: 2px;
+}
+
+/* folder: chevron arrow sits left of folder icon */
+.ft-chevron {
+  gap: 3px;
+}
+
+.ft-chevron-arrow {
+  font-size: 10px;
+  color: var(--t3);
+  width: 10px;
+  flex-shrink: 0;
+  display: inline-block;
+  text-align: center;
+}
+
+/* ── File name ────────────────────────────────────────────────── */
+.ft-name {
+  flex: 1;
+  font-size: 13px;
+  color: var(--t1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
+}
+
+/* ── Delete button ────────────────────────────────────────────── */
+.ft-del {
+  opacity: 0;
+  font-size: 11px;
+  color: var(--t2);
+  padding: 0 5px;
+  border-radius: var(--radius);
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: color .1s, opacity .15s;
+}
+
+.ft-del:hover {
+  color: var(--optix);
+  background: rgba(244, 71, 71, .15);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SETTINGS PANEL — Dynamic agent management additions
+   ═══════════════════════════════════════════════════════════════ */
+
+.sp-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--t2);
+  padding: 4px 2px 6px;
+}
+
+/* Agent header inside pane */
+.spa-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0 6px;
+  border-bottom: 2px solid var(--agent-color, var(--accent));
+  margin-bottom: 10px;
+}
+
+.spa-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.spa-name-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--bg4);
+  color: var(--t1);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 2px 4px;
+  width: 90px;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.spa-name-input:focus {
+  border-bottom-color: var(--accent);
+}
+
+.spa-role {
+  font-size: 11px;
+  color: var(--t2);
+  flex: 1;
+  text-align: right;
+  font-style: italic;
+}
+
+.spa-remove {
+  font-size: 12px;
+  color: var(--t3);
+  padding: 2px 5px;
+  border-radius: var(--radius);
+  transition: color .12s, background .12s;
+}
+
+.spa-remove:hover {
+  color: var(--optix);
+  background: rgba(244, 71, 71, .15);
+}
+
+/* Add agent button in tab bar */
+.sp-add-agent {
+  font-size: 16px;
+  color: var(--t2);
+  padding: 4px 8px;
+  border-radius: var(--radius);
+  transition: color .12s, background .12s;
+  border-bottom: 2px solid transparent;
+  flex-shrink: 0;
+}
+
+.sp-add-agent:hover {
+  color: var(--accent);
+  background: rgba(0, 122, 204, .1);
+}

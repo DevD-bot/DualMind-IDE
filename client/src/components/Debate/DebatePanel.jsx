@@ -11,8 +11,21 @@ const MODES = [
     { id: 'refactor', label: '🔧 Refactor', hint: 'Paste code to debate-refactor' },
     { id: 'fix', label: '🐛 Fix Bug', hint: 'Paste code + error to adversarially debug' },
 ];
-const STACKS = ['HTML/CSS/JS', 'React', 'Vue', 'Next.js', 'Node.js', 'Express', 'Python Flask', 'FastAPI', 'Go', 'Rust'];
-const LANGS = ['javascript', 'python', 'typescript', 'go', 'rust', 'java', 'cpp', 'bash', 'html', 'css'];
+const STACKS = [
+    'HTML/CSS/JS', 'React', 'Vue', 'Next.js', 'Nuxt.js', 'Svelte', 'SvelteKit',
+    'Node.js', 'Express', 'Fastify', 'NestJS',
+    'Python Flask', 'FastAPI', 'Django',
+    'Go (Gin)', 'Rust (Actix)', 'Java (Spring Boot)',
+    'Electron', 'React Native', 'Tauri',
+];
+const LANGS = [
+    'javascript', 'typescript', 'python', 'go', 'rust', 'java',
+    'cpp', 'c', 'csharp', 'kotlin', 'swift',
+    'ruby', 'php', 'scala', 'dart', 'elixir', 'haskell',
+    'bash', 'powershell', 'sql', 'graphql',
+    'html', 'css', 'scss',
+    'r', 'matlab', 'lua', 'perl', 'julia',
+];
 
 export default function DebatePanel() {
     const { debateMode, setDebateMode, addDebateMessage, clearDebate,
