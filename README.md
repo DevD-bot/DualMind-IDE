@@ -207,5 +207,5 @@ Business Source License 1.1 (BUSL-1.1) — see [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-  <strong>Built with by DevD for the Dev's for better solution.</strong>
+  <strong>Crafted with code & caffeine ☕ — by a Dev for the world.</strong>
 </div>
