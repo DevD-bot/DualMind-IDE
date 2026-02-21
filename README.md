@@ -182,7 +182,9 @@ Pull requests are welcome! For major changes, please open an issue first.
 
 ## 📄 License
 
-MIT License — see [LICENSE](LICENSE) for details.
+Business Source License 1.1 (BUSL-1.1) — see [LICENSE](LICENSE) for details. 
+- **Non-commercial use:** Allowed.
+- **Commercial use:** Restricted until 2028-01-01, after which it converts to MIT.
 
 ---
 
