@@ -57,7 +57,13 @@ router.post('/', (req, res) => {
         emit('terminal:exit', { code });
         try { fs.rmSync(execDir, { recursive: true, force: true }); } catch { }
     });
-    proc.on('error', e => emit('terminal:error', e.message));
+    proc.on('error', e => {
+        if (e.code === 'ENOENT') {
+            emit('terminal:error', 'Docker is not installed or not in PATH. Please install Docker Desktop to use the sandbox.');
+        } else {
+            emit('terminal:error', e.message);
+        }
+    });
 });
 
 module.exports = router;
