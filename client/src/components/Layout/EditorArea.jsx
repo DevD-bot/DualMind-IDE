@@ -13,7 +13,7 @@ export default function EditorArea() {
         <div className="editor-area">
             <EditorTabs />
             {activeFile ? (
-                <MonacoEditor file={activeFile} />
+                <MonacoEditor key={activeFile.path} file={activeFile} />
             ) : (
                 <div className="editor-empty">
                     <div className="ee-logo">⚔</div>

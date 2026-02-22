@@ -3,6 +3,9 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const path = require('path');
+const { WebSocketServer } = require('ws');
+const { setupWSConnection } = require('y-websocket/bin/utils');
+
 
 const filesRouter = require('./routes/files');
 const executeRouter = require('./routes/execute');
@@ -41,4 +44,18 @@ io.on('connection', socket => {
 global._io = io;
 
 const PORT = process.env.PORT || 3001;
+
+// Setup Yjs Websocket server sharing the same port
+const wss = new WebSocketServer({ noServer: true });
+server.on('upgrade', (request, socket, head) => {
+    if (request.url.startsWith('/yjs')) {
+        wss.handleUpgrade(request, socket, head, ws => {
+            wss.emit('connection', ws, request);
+        });
+    }
+});
+wss.on('connection', (ws, req) => {
+    setupWSConnection(ws, req);
+});
+
 server.listen(PORT, () => console.log(`[DualMind Server] running on http://localhost:${PORT}`));

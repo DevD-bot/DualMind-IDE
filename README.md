@@ -174,11 +174,11 @@ npm run dev:client   # React frontend on port 5173
 
 ## 📋 Roadmap
 
-- [ ] LSP integration (autocomplete, go-to-definition)
-- [ ] Real-time collaboration (Yjs/CRDT)
-- [ ] Docker sandbox for code execution
-- [ ] Git commit/stage/push UI
-- [ ] Debate history export
+- [x] LSP integration (autocomplete, go-to-definition)
+- [x] Real-time collaboration (Yjs/CRDT)
+- [x] Docker sandbox for code execution
+- [x] Git commit/stage/push UI
+- [x] Debate history export
 - [x] Custom agent names & personas
 - [x] Ollama (self-hosted LLM) support
 - [x] VSCode Material file icons

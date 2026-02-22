@@ -94,7 +94,7 @@ router.post('/mkdir', (req, res) => {
 
 // GET /api/files/pick-folder  — opens native Windows folder browser dialog
 router.get('/pick-folder', (req, res) => {
-    const { spawnSync } = require('child_process');
+    const { exec } = require('child_process');
     const os = require('os');
     const tmp = require('path').join(os.tmpdir(), '_dualmind_picker.ps1');
     const script = [
@@ -102,21 +102,27 @@ router.get('/pick-folder', (req, res) => {
         '$dlg = New-Object System.Windows.Forms.FolderBrowserDialog',
         '$dlg.Description = "Select workspace folder"',
         '$dlg.ShowNewFolderButton = $true',
-        'if ($dlg.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {',
+        '$form = New-Object System.Windows.Forms.Form',
+        '$form.TopMost = $true', // Bring dialogue to front!
+        '$form.WindowState = [System.Windows.Forms.FormWindowState]::Minimized',
+        'if ($dlg.ShowDialog($form) -eq [System.Windows.Forms.DialogResult]::OK) {',
         '    Write-Output $dlg.SelectedPath',
         '}',
     ].join('\n');
     require('fs').writeFileSync(tmp, script, 'utf-8');
-    try {
-        const result = spawnSync('powershell', [
-            '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', tmp
-        ], { encoding: 'utf-8', timeout: 60000 });
-        const picked = (result.stdout || '').trim();
-        if (picked) res.json({ path: picked });
-        else res.json({ path: null, cancelled: true });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
+
+    // Execute asynchronously (not spawnSync) and with -Sta flag required by WinForms UI!
+    exec(`powershell -Sta -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File "${tmp}"`,
+        { encoding: 'utf-8', timeout: 60000 },
+        (err, stdout) => {
+            if (err) {
+                return res.json({ path: null, cancelled: true });
+            }
+            const picked = (stdout || '').trim();
+            if (picked) res.json({ path: picked });
+            else res.json({ path: null, cancelled: true });
+        }
+    );
 });
 
 module.exports = router;

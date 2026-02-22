@@ -28,7 +28,7 @@ const LANGS = [
 ];
 
 export default function DebatePanel() {
-    const { debateMode, setDebateMode, addDebateMessage, clearDebate,
+    const { debateMode, setDebateMode, addDebateMessage, clearDebate, debateMessages,
         isDebating, setIsDebating, agentConfig, setBuildFile, clearBuildFiles,
         openTab, workspaceRoot } = useStore();
 
@@ -84,16 +84,37 @@ export default function DebatePanel() {
         openTab({ path, name: `result.${lang === 'javascript' ? 'js' : lang}`, content: result.code, modified: true });
     };
 
+    const exportDebate = () => {
+        if (!debateMessages || debateMessages.length === 0) return;
+        const md = debateMessages.map(m => `### ${m.label || m.tag || 'Message'}\n\n${m.text}\n`).join('\n---\n\n');
+        const blob = new Blob([md], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `debate-export-${Date.now()}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="debate-panel">
             {/* Mode selector */}
-            <div className="dp-modes">
-                {MODES.map(m => (
-                    <button key={m.id} className={`dp-mode-btn ${debateMode === m.id ? 'dp-mode-active' : ''}`}
-                        onClick={() => { setDebateMode(m.id); setResult(null); clearDebate(); }}>
-                        {m.label}
+            <div className="dp-modes" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                    {MODES.map(m => (
+                        <button key={m.id} className={`dp-mode-btn ${debateMode === m.id ? 'dp-mode-active' : ''}`}
+                            onClick={() => { setDebateMode(m.id); setResult(null); clearDebate(); }}>
+                            {m.label}
+                        </button>
+                    ))}
+                </div>
+                {debateMessages && debateMessages.length > 0 && (
+                    <button className="dp-apply-btn" onClick={exportDebate} title="Export Debate History to Markdown">
+                        💾 Export
                     </button>
-                ))}
+                )}
             </div>
 
             {/* Input */}
