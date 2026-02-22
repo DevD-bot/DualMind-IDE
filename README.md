@@ -96,8 +96,11 @@ DualMind-IDE/
 ### Prerequisites
 - Node.js 18+
 - npm 9+
+- **Docker Desktop** (Required for the code execution sandbox)
 - At least one AI API key (Groq is free → [console.groq.com](https://console.groq.com))
   OR run [Ollama](https://ollama.ai) locally for completely free local inference.
+
+> **OS Support:** DualMind IDE is entirely web-based and cross-platform. It runs flawlessly on **Windows, macOS, and Linux**. The native "Open Folder" picker automatically detects your OS and launches the correct native dialog (`FolderBrowserDialog`, `osascript`, or `zenity`/`kdialog`).
 
 ### Installation
 

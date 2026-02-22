@@ -92,37 +92,56 @@ router.post('/mkdir', (req, res) => {
     }
 });
 
-// GET /api/files/pick-folder  — opens native Windows folder browser dialog
+// GET /api/files/pick-folder  — opens native Window/Mac/Linux folder browser dialog
 router.get('/pick-folder', (req, res) => {
     const { exec } = require('child_process');
     const os = require('os');
-    const tmp = require('path').join(os.tmpdir(), '_dualmind_picker.ps1');
-    const script = [
-        'Add-Type -AssemblyName System.Windows.Forms',
-        '$dlg = New-Object System.Windows.Forms.FolderBrowserDialog',
-        '$dlg.Description = "Select workspace folder"',
-        '$dlg.ShowNewFolderButton = $true',
-        '$form = New-Object System.Windows.Forms.Form',
-        '$form.TopMost = $true', // Bring dialogue to front!
-        '$form.WindowState = [System.Windows.Forms.FormWindowState]::Minimized',
-        'if ($dlg.ShowDialog($form) -eq [System.Windows.Forms.DialogResult]::OK) {',
-        '    Write-Output $dlg.SelectedPath',
-        '}',
-    ].join('\n');
-    require('fs').writeFileSync(tmp, script, 'utf-8');
+    const platform = os.platform();
 
-    // Execute asynchronously (not spawnSync) and with -Sta flag required by WinForms UI!
-    exec(`powershell -Sta -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File "${tmp}"`,
-        { encoding: 'utf-8', timeout: 60000 },
-        (err, stdout) => {
-            if (err) {
-                return res.json({ path: null, cancelled: true });
+    if (platform === 'win32') {
+        const tmp = require('path').join(os.tmpdir(), '_dualmind_picker.ps1');
+        const script = [
+            'Add-Type -AssemblyName System.Windows.Forms',
+            '$dlg = New-Object System.Windows.Forms.FolderBrowserDialog',
+            '$dlg.Description = "Select workspace folder"',
+            '$dlg.ShowNewFolderButton = $true',
+            '$form = New-Object System.Windows.Forms.Form',
+            '$form.TopMost = $true',
+            '$form.WindowState = [System.Windows.Forms.FormWindowState]::Minimized',
+            'if ($dlg.ShowDialog($form) -eq [System.Windows.Forms.DialogResult]::OK) { Write-Output $dlg.SelectedPath }'
+        ].join('\n');
+        require('fs').writeFileSync(tmp, script, 'utf-8');
+
+        exec(`powershell -Sta -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File "${tmp}"`,
+            { encoding: 'utf-8', timeout: 60000 },
+            (err, stdout) => {
+                const picked = (stdout || '').trim();
+                if (picked) res.json({ path: picked });
+                else res.json({ path: null, cancelled: true });
             }
-            const picked = (stdout || '').trim();
-            if (picked) res.json({ path: picked });
-            else res.json({ path: null, cancelled: true });
-        }
-    );
+        );
+    } else if (platform === 'darwin') {
+        // macOS AppleScript
+        exec(`osascript -e 'tell application "System Events" to activate' -e 'tell application "System Events" to POSIX path of (choose folder with prompt "Select workspace folder")'`,
+            { encoding: 'utf-8', timeout: 60000 },
+            (err, stdout) => {
+                const picked = (stdout || '').trim();
+                if (picked) res.json({ path: picked });
+                else res.json({ path: null, cancelled: true });
+            }
+        );
+    } else {
+        // Linux (Zenity or kdialog)
+        exec(`zenity --file-selection --directory --title="Select workspace folder" || kdialog --getexistingdirectory`,
+            { encoding: 'utf-8', timeout: 60000 },
+            (err, stdout) => {
+                const picked = (stdout || '').trim();
+                // strip trailing newlines
+                if (picked) res.json({ path: picked.replace(/\n$/, '') });
+                else res.json({ path: null, cancelled: true });
+            }
+        );
+    }
 });
 
 module.exports = router;
