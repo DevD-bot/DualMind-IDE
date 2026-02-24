@@ -10,7 +10,7 @@ export default function App() {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    const socket = io('http://localhost:3001');
+    const socket = io(`http://${window.location.hostname}:3001`);
     socketRef.current = socket;
     socket.on('connect', () => setSocketId(socket.id));
     socket.on('terminal:stdout', d => addTerminalLine({ type: 'out', text: d }));

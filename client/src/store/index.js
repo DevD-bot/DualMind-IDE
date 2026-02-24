@@ -78,7 +78,12 @@ export const useStore = create((set, get) => ({
     activePanel: 'debate',  // 'explorer' | 'debate' | 'git' | 'settings'
     setActivePanel: (p) => set({ activePanel: p }),
     bottomPanelOpen: true,
-    toggleBottomPanel: () => set(s => ({ bottomPanelOpen: !s.bottomPanelOpen })),
+    toggleBottomPanel: () => {
+        set(s => ({ bottomPanelOpen: !s.bottomPanelOpen }));
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+    },
+    bottomPanelHeight: 200,
+    setBottomPanelHeight: (h) => set({ bottomPanelHeight: h }),
     sidebarWidth: 240,
     setSidebarWidth: (w) => set({ sidebarWidth: w }),
 

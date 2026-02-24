@@ -524,12 +524,26 @@ textarea {
 
 /* ── Bottom Panel ───────────────────────────────────────── */
 .bottom-panel {
-  height: 180px;
   background: var(--bg);
   border-top: 1px solid #111;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+}
+
+.bp-resizer {
+  position: absolute;
+  top: -4px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  cursor: row-resize;
+  z-index: 100;
+}
+
+.bp-resizer:hover {
+  background: var(--accent);
+  opacity: 0.5;
 }
 
 .bp-tabs {
@@ -594,11 +608,23 @@ textarea {
 
 .tp-output {
   flex: 1;
-  overflow-y: auto;
-  padding: 10px 14px;
-  font-family: var(--mono);
-  font-size: 12.5px;
-  white-space: pre-wrap;
+  position: relative;
+  overflow: hidden;
+  padding: 8px;
+  background: var(--bg);
+}
+
+.tp-output .xterm,
+.tp-output .xterm * {
+  box-sizing: content-box !important;
+}
+
+.tp-output .xterm {
+  height: 100%;
+}
+
+.tp-output .xterm-viewport {
+  overflow-y: auto !important;
 }
 
 .tp-hint {

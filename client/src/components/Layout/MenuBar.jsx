@@ -3,7 +3,7 @@ import { useStore } from '../../store/index.js';
 import axios from 'axios';
 import { getFileTree } from '../../services/backend.js';
 
-const API = axios.create({ baseURL: 'http://localhost:3001/api' });
+const API = axios.create({ baseURL: `http://${window.location.hostname}:3001/api` });
 
 function Menu({ label, items }) {
     const [open, setOpen] = useState(false);

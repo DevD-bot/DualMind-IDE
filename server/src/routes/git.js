@@ -20,7 +20,11 @@ router.get('/status', (req, res) => {
     if (!cwd) return res.status(400).json({ error: 'cwd required' });
     try {
         const raw = git('status --porcelain', cwd);
-        const branch = git('rev-parse --abbrev-ref HEAD', cwd).trim();
+        let branch = '';
+        try {
+            branch = git('branch --show-current', cwd).trim();
+            if (!branch) branch = git('rev-parse --abbrev-ref HEAD', cwd).trim();
+        } catch { branch = 'master'; }
         // upstream tracking info
         let ahead = 0, behind = 0;
         try {

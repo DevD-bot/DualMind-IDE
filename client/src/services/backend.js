@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: 'http://localhost:3001/api' });
+const API = axios.create({ baseURL: `http://${window.location.hostname}:3001/api` });
 
 export const getFileTree = (root) => API.get(`/files/tree?root=${encodeURIComponent(root)}`).then(r => r.data);
 export const readFile = (path) => API.get(`/files/read?path=${encodeURIComponent(path)}`).then(r => r.data);

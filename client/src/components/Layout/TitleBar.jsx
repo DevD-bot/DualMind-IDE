@@ -3,7 +3,7 @@ import { useStore } from '../../store/index.js';
 import { getFileTree } from '../../services/backend.js';
 import axios from 'axios';
 
-const API = axios.create({ baseURL: 'http://localhost:3001/api' });
+const API = axios.create({ baseURL: `http://${window.location.hostname}:3001/api` });
 
 export default function TitleBar() {
     const workspaceRoot = useStore(s => s.workspaceRoot);

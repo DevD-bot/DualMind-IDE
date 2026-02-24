@@ -5,6 +5,8 @@ const cors = require('cors');
 const path = require('path');
 const { WebSocketServer } = require('ws');
 const { setupWSConnection } = require('y-websocket/bin/utils');
+const os = require('os');
+const pty = require('node-pty');
 
 
 const filesRouter = require('./routes/files');
@@ -37,7 +39,44 @@ app.get('/health', (_, res) => res.json({ ok: true, time: new Date().toISOString
 
 io.on('connection', socket => {
     console.log('[WS] client connected:', socket.id);
-    socket.on('disconnect', () => console.log('[WS] client disconnected:', socket.id));
+
+    let ptyProcess = null;
+
+    socket.on('terminal:spawn', ({ cwd, cols, rows }) => {
+        if (ptyProcess) return;
+        const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
+        ptyProcess = pty.spawn(shell, [], {
+            name: 'xterm-color',
+            cols: cols || 80,
+            rows: rows || 24,
+            cwd: cwd || process.env.HOME || process.cwd(),
+            env: process.env
+        });
+
+        ptyProcess.onData(data => {
+            socket.emit('terminal:data', data);
+        });
+
+        ptyProcess.onExit(() => {
+            socket.emit('terminal:exit');
+            ptyProcess = null;
+        });
+    });
+
+    socket.on('terminal:data', (data) => {
+        if (ptyProcess) ptyProcess.write(data);
+    });
+
+    socket.on('terminal:resize', ({ cols, rows }) => {
+        if (ptyProcess) {
+            try { ptyProcess.resize(cols, rows); } catch (e) { }
+        }
+    });
+
+    socket.on('disconnect', () => {
+        console.log('[WS] client disconnected:', socket.id);
+        if (ptyProcess) ptyProcess.kill();
+    });
 });
 
 // Make io accessible globally for execute route
