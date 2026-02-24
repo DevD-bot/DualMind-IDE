@@ -52,7 +52,7 @@ Each agent can use a **different AI provider**:
 - **VSCode Material Icons** — 40+ file-type icons (JS, TS, PY, MD, JSON, locks, gitignore…)
 - **Multi-tab editing** with unsaved indicators
 - **File Explorer** — browse, create, rename, delete files on your actual filesystem
-- **Terminal** — run code directly, with live output streaming via WebSocket
+- **Terminal** — Fully interactive PTY terminal backed by xterm.js (supports running servers, git interactive commands, etc.)
 - **Git Panel** — see changed files and current branch
 - **30+ language selectors** for debate modes (JS, TS, Python, Go, Rust, C++, SQL, SCSS…)
 - **20+ tech stacks** for App Builder (Next.js, NestJS, FastAPI, Django, Tauri, Electron…)
