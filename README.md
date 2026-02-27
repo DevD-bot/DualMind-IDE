@@ -61,6 +61,59 @@ Each agent can use a **different AI provider**:
 
 ---
 
+## 📸 Screenshots
+
+> All screenshots taken from DualMind IDE running locally at `http://localhost:5173`
+
+### 🖥️ Main IDE Interface
+![Main IDE Overview](screenshots/01_main_overview.png)
+*The full IDE layout — File Explorer (left), Monaco Editor (center), Debate Panel (right), Terminal (bottom)*
+
+---
+
+### 📝 Monaco Editor with File Explorer
+![Monaco Editor](screenshots/02_monaco_editor.png)
+*VS Code-quality Monaco Editor with VSCode Material file icons, multi-tab support, and syntax highlighting*
+
+---
+
+### 🤖 AI Debate Modes
+
+**⚡ Quick Code** — Describe any code snippet and let agents debate the best approach
+![Quick Code Mode](screenshots/03_quick_code.png)
+
+**🏗️ Build App** — Describe an app, get a full multi-file project generated via debate
+![Build App Mode](screenshots/04_build_app.png)
+
+**💡 Explain** — Paste code and agents explain it from their unique perspectives
+![Explain Mode](screenshots/05_explain.png)
+
+**🔧 Refactor** — Adversarial refactoring that applies the winning solution directly to your editor
+![Refactor Mode](screenshots/06_refactor.png)
+
+**🐛 Fix Bug** — Paste code + error → agents debate the best fix → winner is applied
+![Fix Bug Mode](screenshots/07_fix_bug.png)
+
+---
+
+### ⚙️ Settings — AI Battle Agent Configuration
+![Settings Panel](screenshots/08_settings.png)
+*Add unlimited agents (Archie, Optix, Judge…), choose provider (Gemini, OpenAI, Claude, Groq, Ollama…), model, and API key per agent*
+
+---
+
+### 🔗 Git & DevD Panel
+![Git Panel](screenshots/09_git_panel.png)
+*Quick access links including GitHub profile and Portfolio — shown via the DevD panel in the Activity Bar*
+
+---
+
+### 💻 Integrated Terminal
+![Terminal](screenshots/10_terminal.png)
+*Built-in Terminal panel for running commands directly inside the IDE*
+
+---
+
 ## 🏗️ Architecture
 
 ```
