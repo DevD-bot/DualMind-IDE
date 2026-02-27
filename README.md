@@ -71,6 +71,28 @@ Each agent can use a **different AI provider**:
 
 ---
 
+### ⚡ Debate In Action — Powered by Groq (Free & Fast)
+
+A real AI battle using **Groq's Llama 3.3 70B** for all 3 agents (Archie + Optix debate → Judge synthesizes):
+
+**1. Settings configured — Groq + Llama 3.3 70B for all agents**
+![Settings with Groq](screenshots/11_settings_groq_configured.png)
+*All 3 agents (Archie, Optix, Judge) set to Groq's Llama 3.3 70B — completely free*
+
+**2. Prompt entered — "Write a Python prime-checking function"**
+![Debate Prompt](screenshots/12_debate_prompt.png)
+*Python language selected, prompt ready — the full IDE project is visible in the Explorer*
+
+**3. Live debate — Agents arguing, Judge preparing verdict**
+![Debate Live](screenshots/13_debate_live.png)
+*Debate completed in under 5 seconds via Groq! The Judge's optimized O(√n) prime checker is visible*
+
+**4. Final verdict — Judge synthesized the best solution**
+![Debate Verdict](screenshots/14_debate_verdict.png)
+*"Verdict reached. Final code ready in output →" — click **Apply to Editor** to insert the winning code*
+
+---
+
 ### 📝 Monaco Editor with File Explorer
 ![Monaco Editor](screenshots/02_monaco_editor.png)
 *VS Code-quality Monaco Editor with VSCode Material file icons, multi-tab support, and syntax highlighting*
